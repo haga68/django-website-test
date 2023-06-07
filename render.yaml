@@ -1,0 +1,29 @@
+databases:
+  # データベースサーバ
+  - name: django-website-test
+    region: singapore
+    plan: free
+    databaseName: django-website-test
+    user: app_user
+
+services:
+  # Django
+  - type: web
+    name: django-test-app
+    env: python
+    region: singapore
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn django_website.wsgi:application"
+    plan: free
+    branch: main
+    healthCheckPath: /
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: django-website-test
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: WEB_CONCURRENCY
+        value: 2
+    autoDeploy: true
